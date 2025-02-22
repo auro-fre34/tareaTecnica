@@ -3,11 +3,8 @@ package com.project.demo.logic.entity.product;
 import com.project.demo.logic.entity.category.Category;
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
-@Table(name= "`product`" )
+@Table(name= "product" )
 public class Product {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
