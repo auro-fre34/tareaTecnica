@@ -36,7 +36,7 @@ public class CategoryController {
           HttpServletRequest request
       ) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         Page<Category> categoryPage = categoryRepositoy.findAll(pageable);
         Meta meta = new Meta(request.getMethod(), request.getRequestURL().toString());
         meta.setTotalPages(categoryPage.getTotalPages());

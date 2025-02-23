@@ -39,7 +39,7 @@ public class ProductController {
         HttpServletRequest request
         ) {
 
-      Pageable pageable = PageRequest.of(page, size);
+      Pageable pageable = PageRequest.of(page-1, size);
       Page<Product> productsPage = productRepository.findAll(pageable);
       Meta meta = new Meta(request.getMethod(), request.getRequestURL().toString());
       meta.setTotalPages(productsPage.getTotalPages());
