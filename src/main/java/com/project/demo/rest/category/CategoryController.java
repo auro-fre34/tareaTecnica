@@ -1,7 +1,7 @@
 package com.project.demo.rest.category;
 
 import com.project.demo.logic.entity.category.Category;
-import com.project.demo.logic.entity.category.CategoryRepositoy;
+import com.project.demo.logic.entity.category.CategoryRepository;
 import com.project.demo.logic.entity.http.GlobalResponseHandler;
 import com.project.demo.logic.entity.http.Meta;
 import com.project.demo.logic.entity.user.UserRepository;
@@ -22,7 +22,7 @@ import java.util.Optional;
 public class CategoryController {
 
   @Autowired
-  private CategoryRepositoy categoryRepositoy;
+  private CategoryRepository categoryRepository;
 
   @Autowired
   private UserRepository userRepository;
@@ -37,7 +37,7 @@ public class CategoryController {
       ) {
 
         Pageable pageable = PageRequest.of(page-1, size);
-        Page<Category> categoryPage = categoryRepositoy.findAll(pageable);
+        Page<Category> categoryPage = categoryRepository.findAll(pageable);
         Meta meta = new Meta(request.getMethod(), request.getRequestURL().toString());
         meta.setTotalPages(categoryPage.getTotalPages());
         meta.setTotalElements(categoryPage.getTotalElements());
@@ -51,7 +51,7 @@ public class CategoryController {
       @GetMapping("/{Id}")
       @PreAuthorize("isAuthenticated()")
       public ResponseEntity<?> getCetgoryById(@PathVariable Long Id, HttpServletRequest request) {
-        Optional<Category> foundCategory = categoryRepositoy.findById(Id);
+        Optional<Category> foundCategory = categoryRepository.findById(Id);
         if(foundCategory.isPresent())  {
           return new GlobalResponseHandler().handleResponse(
               "Category retrieved successfully",
@@ -69,7 +69,7 @@ public class CategoryController {
       @PostMapping
       @PreAuthorize("isAuthenticated() && hasAnyRole('SUPER_ADMIN')")
       public ResponseEntity<?> addCategory(@RequestBody Category category, HttpServletRequest request) {
-        Category savedCategory = categoryRepositoy.save(category);
+        Category savedCategory = categoryRepository.save(category);
         return new GlobalResponseHandler().handleResponse(
             "Product successfully saved",
             savedCategory,
@@ -80,7 +80,7 @@ public class CategoryController {
       @PutMapping
       @PreAuthorize("isAuthenticated() && hasAnyRole('SUPER_ADMIN')")
       public ResponseEntity<?> updateCategory(@RequestBody Category category, HttpServletRequest request) {
-        Category savedCategory = categoryRepositoy.save(category);
+        Category savedCategory = categoryRepository.save(category);
         return new GlobalResponseHandler().handleResponse(
             "Category successfully updated",
             savedCategory,
@@ -91,9 +91,9 @@ public class CategoryController {
       @DeleteMapping("/{Id}")
       @PreAuthorize("isAuthenticated() && hasAnyRole('SUPER_ADMIN')")
       public ResponseEntity<?> deleteCategory (@PathVariable Long Id, HttpServletRequest request) {
-        Optional<Category> foundCategory = categoryRepositoy.findById(Id);
+        Optional<Category> foundCategory = categoryRepository.findById(Id);
         if(foundCategory.isPresent()) {
-          categoryRepositoy.deleteById(Id);
+          categoryRepository.deleteById(Id);
           return new GlobalResponseHandler().handleResponse(
               "Category successfully deleted",
               HttpStatus.OK,

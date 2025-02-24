@@ -1,6 +1,6 @@
 package com.project.demo.rest.product;
 
-import com.project.demo.logic.entity.category.CategoryRepositoy;
+import com.project.demo.logic.entity.category.CategoryRepository;
 import com.project.demo.logic.entity.http.GlobalResponseHandler;
 import com.project.demo.logic.entity.http.Meta;
 import com.project.demo.logic.entity.product.Product;
@@ -25,7 +25,7 @@ public class ProductController {
   private ProductRepository productRepository;
 
   @Autowired
-  private CategoryRepositoy categoryRepositoy;
+  private CategoryRepository categoryRepository;
 
   @Autowired
   private UserRepository userRepository;
