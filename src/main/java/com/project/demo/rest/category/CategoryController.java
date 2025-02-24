@@ -77,18 +77,32 @@ public class CategoryController {
             request);
       }
 
-      @PutMapping
-      @PreAuthorize("isAuthenticated() && hasAnyRole('SUPER_ADMIN')")
-      public ResponseEntity<?> updateCategory(@RequestBody Category category, HttpServletRequest request) {
-        Category savedCategory = categoryRepository.save(category);
-        return new GlobalResponseHandler().handleResponse(
-            "Category successfully updated",
-            savedCategory,
-            HttpStatus.OK,
-            request);
-      }
+  @PutMapping("/{Id}")
+  @PreAuthorize("isAuthenticated() && hasAnyRole('SUPER_ADMIN')")
+  public ResponseEntity<?> updateCategory(@PathVariable Long Id, @RequestBody Category category, HttpServletRequest request) {
+    Optional<Category> foundCategory = categoryRepository.findById(Id);
+    if (foundCategory.isPresent()) {
+      Category existingCategory = foundCategory.get();
+      existingCategory.setName(category.getName());
+      existingCategory.setDescription(category.getDescription());
 
-      @DeleteMapping("/{Id}")
+      categoryRepository.save(existingCategory);
+
+      return new GlobalResponseHandler().handleResponse(
+          "Category successfully updated",
+          existingCategory,
+          HttpStatus.OK,
+          request);
+    } else {
+      return new GlobalResponseHandler().handleResponse(
+          "Category with id " + Id + " not found",
+          HttpStatus.NOT_FOUND,
+          request);
+    }
+  }
+
+
+  @DeleteMapping("/{Id}")
       @PreAuthorize("isAuthenticated() && hasAnyRole('SUPER_ADMIN')")
       public ResponseEntity<?> deleteCategory (@PathVariable Long Id, HttpServletRequest request) {
         Optional<Category> foundCategory = categoryRepository.findById(Id);

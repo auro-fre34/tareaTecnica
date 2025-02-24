@@ -80,15 +80,30 @@ public class ProductController {
         request);
   }
 
-  @PutMapping
+  @PutMapping("/{Id}")
   @PreAuthorize("isAuthenticated() && hasAnyRole('SUPER_ADMIN')")
-  public ResponseEntity<?> updateProduct(@RequestBody Product product, HttpServletRequest request) {
-    Product savedProduct = productRepository.save(product);
-    return new GlobalResponseHandler().handleResponse(
-        "Product successfully updated",
-        savedProduct,
-        HttpStatus.OK,
-        request);
+  public ResponseEntity<?> updateProduct(@PathVariable Long Id, @RequestBody Product product, HttpServletRequest request) {
+    Optional<Product> foundProduct = productRepository.findById(Id);
+    if (foundProduct.isPresent()) {
+      Product existingProduct = foundProduct.get();
+      existingProduct.setName(product.getName());
+      existingProduct.setDescription(product.getDescription());
+      existingProduct.setPrice(product.getPrice());
+      existingProduct.setStock(product.getStock());
+
+      productRepository.save(existingProduct);
+
+      return new GlobalResponseHandler().handleResponse(
+          "Product successfully updated",
+          existingProduct,
+          HttpStatus.OK,
+          request);
+    } else {
+      return new GlobalResponseHandler().handleResponse(
+          "Product with id " + Id + " not found",
+          HttpStatus.NOT_FOUND,
+          request);
+    }
   }
 
   @DeleteMapping("/{Id}")
