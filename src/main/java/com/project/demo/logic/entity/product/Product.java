@@ -1,5 +1,6 @@
 package com.project.demo.logic.entity.product;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.project.demo.logic.entity.category.Category;
@@ -23,20 +24,23 @@ public class Product {
 
 
   @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
-  @JoinColumn(name = "category_id")
-  @JsonIgnore
+  @JoinColumn(name = "category_id", nullable = false)
+  @JsonBackReference
   private Category category;
 
   @JsonProperty("category_id")
-  public long getCategoryId() { return category!=null ? category.getId() : null; }
+  public Long getCategoryId() {
+    return category != null ? category.getId() : null;
+  }
 
-  public Product(Long id, String name, String description, int price, int stock, Category category) {
+
+  public Product(Long id, String name, String description, int price, int stock, Category category ) {
     this.id = id;
     this.name = name;
     this.description = description;
     this.price = price;
     this.stock = stock;
-    this.category= category;
+    this.category = category;
   }
 
   public Product() {
@@ -89,4 +93,5 @@ public class Product {
   public void setCategory(Category category) {
     this.category = category;
   }
+
 }

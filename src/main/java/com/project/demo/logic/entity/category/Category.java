@@ -15,7 +15,7 @@ public class Category {
   private String name;
   private String description;
 
-  @OneToMany(mappedBy = "category")
+  @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
   private List<Product> products = new ArrayList<>();
 
 
@@ -51,4 +51,6 @@ public class Category {
   public void setDescription(String description) {
     this.description = description;
   }
+
+  public List<Product> getProducts() {return products; }
 }

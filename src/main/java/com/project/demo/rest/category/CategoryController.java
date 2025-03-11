@@ -50,7 +50,7 @@ public class CategoryController {
 
       @GetMapping("/{Id}")
       @PreAuthorize("isAuthenticated()")
-      public ResponseEntity<?> getCetgoryById(@PathVariable Long Id, HttpServletRequest request) {
+      public ResponseEntity<?> getCategoryById(@PathVariable Long Id, HttpServletRequest request) {
         Optional<Category> foundCategory = categoryRepository.findById(Id);
         if(foundCategory.isPresent())  {
           return new GlobalResponseHandler().handleResponse(

@@ -1,5 +1,6 @@
 package com.project.demo.rest.product;
 
+import com.project.demo.logic.entity.category.Category;
 import com.project.demo.logic.entity.category.CategoryRepository;
 import com.project.demo.logic.entity.http.GlobalResponseHandler;
 import com.project.demo.logic.entity.http.Meta;
@@ -34,22 +35,22 @@ public class ProductController {
 
   @GetMapping
   @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> getProducts(
-        @RequestParam(defaultValue = "1") int page,
-        @RequestParam(defaultValue = "10") int size,
-        HttpServletRequest request
-        ) {
+  public ResponseEntity<?> getProducts(
+      @RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int size,
+      HttpServletRequest request
+  ) {
 
-      Pageable pageable = PageRequest.of(page-1, size);
-      Page<Product> productsPage = productRepository.findAll(pageable);
-      Meta meta = new Meta(request.getMethod(), request.getRequestURL().toString());
-      meta.setTotalPages(productsPage.getTotalPages());
-      meta.setTotalElements(productsPage.getTotalElements());
-      meta.setPageNumber(productsPage.getNumber() + 1);
-      meta.setPageSize(productsPage.getSize());
+    Pageable pageable = PageRequest.of(page-1, size);
+    Page<Product> productsPage = productRepository.findAll(pageable);
+    Meta meta = new Meta(request.getMethod(), request.getRequestURL().toString());
+    meta.setTotalPages(productsPage.getTotalPages());
+    meta.setTotalElements(productsPage.getTotalElements());
+    meta.setPageNumber(productsPage.getNumber() + 1);
+    meta.setPageSize(productsPage.getSize());
 
-      return new GlobalResponseHandler().handleResponse("Product retrieved successfully",
-      productsPage.getContent(), HttpStatus.OK, meta);
+    return new GlobalResponseHandler().handleResponse("Product retrieved successfully",
+        productsPage.getContent(), HttpStatus.OK, meta);
   }
 
   @GetMapping("/{Id}")
@@ -72,13 +73,54 @@ public class ProductController {
 
   @PostMapping
   @PreAuthorize("isAuthenticated() && hasAnyRole('SUPER_ADMIN')")
-  public ResponseEntity<?> addProduct(@RequestBody Product product, HttpServletRequest request) {
-    Product savedProduct = productRepository.save(product);
-    return new GlobalResponseHandler().handleResponse(
-        "Product successfully saved",
-        savedProduct,
-        HttpStatus.OK,
-        request);
+  public ResponseEntity<?> addProductToCategories(
+      @RequestBody Product product,
+      HttpServletRequest request) {
+    //Buscar la categoria con el category_id
+    Optional<Category> foundCategory = categoryRepository.findById(product.getCategory().getId());
+
+    if (foundCategory.isPresent()) {
+      Product toSaveProduct;
+
+      //Si ya existe
+      if (product.getId() != null) {
+        Optional<Product> foundProduct = productRepository.findById(product.getId());
+        toSaveProduct = foundProduct.orElse(new Product());
+      } else {
+        toSaveProduct = new Product();
+      }
+
+      //Asignar valores al producto
+      toSaveProduct.setName(product.getName());
+      toSaveProduct.setDescription(product.getDescription());
+      toSaveProduct.setPrice(product.getPrice());
+      toSaveProduct.setStock(product.getStock());
+      toSaveProduct.setCategory(foundCategory.get());
+
+      //Evitar duplicados
+      if (foundCategory.get().getProducts().contains(toSaveProduct)) {
+        return new GlobalResponseHandler().handleResponse(
+            "Product already in this category",
+            HttpStatus.BAD_REQUEST,
+            request);
+      }
+
+      //Guardar el producto y la categoría
+      productRepository.save(toSaveProduct);
+      foundCategory.get().getProducts().add(toSaveProduct);
+      categoryRepository.save(foundCategory.get());
+
+      return new GlobalResponseHandler().handleResponse(
+          "Product added to category " + foundCategory.get().getName(),
+          foundCategory.get(),
+          HttpStatus.OK,
+          request);
+    } else {
+      return new GlobalResponseHandler().handleResponse(
+          "Category not found",
+          HttpStatus.NOT_FOUND,
+          request);
+    }
   }
 
   @PutMapping("/{Id}")
