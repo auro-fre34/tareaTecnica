@@ -33,6 +33,7 @@ public class ProductController {
   //GET -POST - PATCH - PUT - DELETE
 
   @GetMapping
+  @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getProducts(
         @RequestParam(defaultValue = "1") int page,
         @RequestParam(defaultValue = "10") int size,
